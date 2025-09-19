@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel">
+    <div id="messages" class="messages"></div>
+    <form id="chat-form" class="chat">
+        <textarea id="q" name="q"
+            placeholder="Ask anything... e.g., “Join customers and invoices by email; total paid last 60 days by state; save as bakehouse.revenue_60d_by_state.”"></textarea>
+        <button id="send" type="submit">Send</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const $msgs = document.getElementById('messages');
+    const $form = document.getElementById('chat-form');
+    const $q = document.getElementById('q');
+    const $btn = document.getElementById('send');
+
+    function addMsg(text, who) {
+        const div = document.createElement('div');
+        div.className = 'msg ' + who;
+        div.textContent = text;
+        $msgs.appendChild(div);
+        $msgs.scrollTop = $msgs.scrollHeight;
+        return div;
+    }
+
+    function addTrace(trace) {
+        if (!trace || !trace.length) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'trace';
+        const det = document.createElement('details');
+        const sum = document.createElement('summary');
+        sum.textContent = 'Show tool trace';
+        det.appendChild(sum);
+
+        trace.forEach(step => {
+            const pre = document.createElement('pre');
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.margin = '6px 0 0';
+            pre.textContent = JSON.stringify(step, null, 2);
+            det.appendChild(pre);
+        });
+        wrap.appendChild(det);
+        $msgs.appendChild(wrap);
+        $msgs.scrollTop = $msgs.scrollHeight;
+    }
+
+    $form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = $q.value.trim();
+        if (!text) return;
+
+        addMsg(text, 'user');
+        $q.value = '';
+        $btn.disabled = true;
+        const thinking = addMsg('Thinking…', 'bot');
+
+        try {
+            const res = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ q: text })
+            });
+            const data = await res.json();
+
+            thinking.remove();
+
+            if (!res.ok) {
+                addMsg(`Error: ${data.error || 'Request failed'}`, 'bot');
+                return;
+            }
+
+            addMsg(data.answer || '(no answer)', 'bot');
+            addTrace(data.trace);
+        } catch (err) {
+            thinking.remove();
+            addMsg('Network error. Check server logs.', 'bot');
+        } finally {
+            $btn.disabled = false;
+            $q.focus();
+        }
+    });
+
+    // Shift+Enter = newline, Enter = submit
+    $q.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            $form.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+    });
+</script>
+{% endblock %}
