@@ -1,0 +1,17 @@
+
+services:
+  dremio:
+    image: dremio/dremio-oss:latest
+    container_name: dremiomcp
+    ports:
+      - "9047:9047"     # Web UI
+      - "31010:31010"   # JDBC/ODBC
+      - "32010:32010"   # Arrow Flight
+      - "45678:45678"   # Internal
+    environment:
+      - DREMIO_JAVA_SERVER_EXTRA_OPTS=-Dpaths.dist=file:///opt/dremio/data/dist
+    volumes:
+      - dremio-data-volume:/opt/dremio/data
+
+volumes:
+  dremio-data-volume:
