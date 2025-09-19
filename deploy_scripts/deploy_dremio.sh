@@ -9,7 +9,7 @@ until curl -sf http://localhost:9047/apiv2/server_status | grep -q OK; do
 done
 
 # 1) Clone + deps
-git clone git@github.com:ViaJables/dremio-mcp-client.git
+git clone git@github.com:ui-iids/dremio-mcp-client.git
 git clone https://github.com/dremio/dremio-mcp
 cd dremio-mcp-client
 uv sync
