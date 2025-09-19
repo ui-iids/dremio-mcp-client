@@ -1,3 +1,7 @@
+# Use the provided key if not already in the environment
+: "${ANTHROPIC_API_KEY:=YOUR_ANTHROPIC_API_KEY}"
+
+
 # 0) Dremio up
 docker compose up -d dremio
 until curl -sf http://localhost:9047/apiv2/server_status | grep -q OK; do
@@ -38,8 +42,7 @@ cd ..
 MCP_DIR="$(cd dremio-mcp && pwd)"
 ENV_FILE=".env"
 
-# Use the provided key if not already in the environment
-: "${ANTHROPIC_API_KEY:=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}"
+
 
 # Create .env with strict perms and masked logging
 
