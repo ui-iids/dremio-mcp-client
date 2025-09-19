@@ -13,7 +13,7 @@ from .api import register_apis
 # Only needed if using a database.
 # For instructions on other databases or plugins,
 # including necessary packages, see `database.py`.
-from .database import register_database
+#from .database import register_database
 
 
 def create_app(config_filename="config.toml", config_override={}):
@@ -21,7 +21,7 @@ def create_app(config_filename="config.toml", config_override={}):
 
     # Register Database
     # * Remove if not using database.
-    register_database(app)
+    #register_database(app)
 
     # Register Rendered Pages Blueprint
     # * Remove if not serving pages.
