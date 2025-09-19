@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev-server",
+      "type": "shell",
+      "command": "uv run flask --app project_name run --debug",
+      "problemMatcher": {
+        "owner": "python",
+        "fileLocation": "absolute",
+        "pattern": [
+          {
+            "regexp": "^\\s*File \"(.*?)\", line (\\d+), in (.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          },
+          {
+            "regexp": "^\\s*(.*?): (.*)$",
+            "message": 2
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ", reloading$",
+          "endsPattern": "^\\s*\\* Debugger is active!$"
+        }
+      },
+      "isBackground": true,
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "launch browser",
+      "type": "shell",
+      "command": "uv run python -m webbrowser http://localhost:5000/",
+      "problemMatcher": ["$python"],
+      "dependsOn": ["dev-server"],
+      "runOptions": {
+        "runOn": "folderOpen",
+        "instanceLimit": 1
+      }
+    }
+  ]
+}

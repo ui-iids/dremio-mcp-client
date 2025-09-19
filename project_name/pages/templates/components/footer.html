@@ -1,0 +1,23 @@
+<div class="main-footer">
+    <div class="footer-content-wrap">
+        <div class="footer-left">
+            <a href="https://www.uidaho.edu" target="_blank" rel=" noreferrer noopener">
+                <img src="{{url_for('static',filename='images/branding/IIDS-Logo-horizontal_white-1024x349.png')}}" />
+            </a>
+        </div>
+        <div class="footer-mid">
+            <div class="copywright">
+                © {{ config.COPYWRIGHT_YEAR or 2025 }}
+                {{ config.COPYWRIGHT_OWNER or "RCDS" }}
+            </div>
+            <div class="attribution">
+                Powered by: <a href="https://hpc.uidaho.edu">RCDS</a>
+            </div>
+        </div>
+        <div class="footer-right">
+            <a href="https://www.uidaho.edu" target="_blank" rel=" noreferrer noopener">
+                <img src="{{url_for('static',filename='images/branding/UI_Main_horizontal_W-1024x278.png')}}" />
+            </a>
+        </div>
+    </div>
+</div>

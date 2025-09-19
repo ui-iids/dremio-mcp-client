@@ -1,0 +1,111 @@
+[project]
+name = "project_name"
+version = "0.1"
+description = "project_description"
+dependencies = [
+    "flask>=3.1.0",
+    "flask-smorest>=0.45.0",
+    "pyyaml>=6.0.2",
+    "setuptools>=75.8.0",
+    "flask-sqlalchemy>=3.1.1",
+    "bootstrap-flask>=2.4.1",
+]
+requires-python = ">=3.12,<4.0"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["project_name"]
+include = []
+
+[tool.setuptools.package-data]
+"*" = ["*.css", "*.js", "*.ts", "*.html", "*.png", "*.svg", "*.jpg"]
+
+[project.urls]
+"Homepage" = "https://github.com/northwestknowledgenetwork/project_name"
+# "Documentation" = "https://northwestknowledgenetwork.github.io/project_name"
+
+[[project.authors]]
+name = "Clinton Bradford"
+email = "cbradford@uidaho.edu"
+
+[tool.uv]
+default-groups = ["dev", "sass", "test", "coverage", "lint"]
+
+[dependency-groups]
+dev = [
+    "tox>=4.23.2",
+    "tox-uv>=1.26.0",
+    "uv>=0.7.11",
+]
+sass = [
+    "libsass>=0.23.0",
+]
+test = [
+    "mock-alchemy>=0.2.6",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.1.1",
+]
+coverage = [
+    "coverage>=7.6.10",
+    "pytest-sugar>=1.0.0",
+]
+lint = [
+    "mypy>=1.14.1",
+    "ruff>=0.9.1",
+]
+serve = [
+    "gunicorn>=23.0.0",
+]
+
+[tool.coverage.run]
+source = ["project_name"]
+omit = ["/project_name/static/*", "/project_name/templates/*", "/tests/*"]
+
+[tool.coverage.report]
+fail_under = 80
+
+[tool.pytest.ini_options]
+addopts = "--cov=project_name --cov-report xml"
+
+[tool.tox]
+requires = ["tox-uv", "uv"]
+env_list = ["format", "sass", "lint", "type", "3.13"]
+
+[tool.tox.env.format]
+description = "Format the code with Ruff"
+dependency_groups = ["lint"]
+skip_install = true
+commands = [["ruff", "format"]]
+
+[tool.tox.env.lint]
+description = "Lint the code with Ruff"
+dependency_groups = ["lint"]
+skip_install = true
+commands = [["ruff", "check"]]
+
+[tool.tox.env.sass]
+description = "Compile the CSS with libcss"
+dependency_groups = ["sass"]
+skip_install = true
+commands = [["python", "scripts/build_sass.py"]]
+
+[tool.tox.env.type]
+description = "Analyze the code with mypy"
+dependency_groups = ["lint"]
+commands = [["mypy", "project_name"]]
+
+[tool.tox.env.3.13]
+dependency_groups = ["coverage","test", "dev","sass"]
+commands = [["pytest", "tests", "{posargs}"]]
+description = "Install pytest in a virtual environment and invoke it on the tests folder"
+
+[tool.mypy]
+follow_imports = "silent"
+ignore_missing_imports = true
+python_version = "3.13"
+strict_optional = false
+
+[tool.tox.gh.python]
+"3.13" = ["3.13", "format", "lint", "mypy"]

@@ -1,0 +1,16 @@
+{# Set navigation items here, format href, id, menu key #}
+{% set navigation_bar = [
+(url_for('pages.index'),'index','Index'),
+(url_for('pages.example_page'),'page','Page')
+] -%}
+<nav class="side-nav" id="sidenav">
+    <ul id="left-navigation">
+        {% for href, id, caption in navigation_bar %}
+        <li {% if id==active_page %} class="active" {% endif %}>
+            <a href="{{ href|e }}">
+                <span class="side-nav-label">{{ caption|e }}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>

@@ -1,0 +1,61 @@
+<!DOCTYPE html />
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}IIDS Example Project{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/style.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/style.scss.css')}}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{url_for('static', filename='icons/favicon.png')}}"
+      type="image/png"
+    />
+    {% for icon_category in ("icon","apple-touch-icon")%} {% for icon_size in
+    (144, 192, 512)%}
+    <link
+      rel="{{category}}"
+      href="{{url_for('static', filename='icons/')}}icon_{{icon_size}}x{{icon_size}}.png"
+      type="image/png"
+    />
+    {% endfor %} {% endfor %}
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    {% if config.SERVE_PWA %}
+    <link
+      rel="manifest"
+      href="{{url_for('static',filename='manifest.json')}}"
+    />
+    <script src="{{url_for('static',filename='js/register-sw.js')}}"></script>
+    {% endif %} {{ bootstrap.load_css() }} {% block head %}{% endblock %}
+  </head>
+
+  <body>
+    <div class="layout">
+      <header class="main-header">
+        {% block header %}{% include "components/header.html" %}{% endblock %}
+      </header>
+      <div class="center-panel">
+        <div class="collapse collapse-horizontal show" id="sidenav-container">
+          {% block nav %}{% include "components/nav.html" %}{% endblock %}
+        </div>
+        <div class="content">{% block content %}Page Content{% endblock %}</div>
+      </div>
+      <footer class="main-footer">
+        {% block footer %}{%include "components/footer.html" %}{% endblock %}
+      </footer>
+    </div>
+    {{ bootstrap.load_js() }}
+  </body>
+</html>

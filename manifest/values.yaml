@@ -1,0 +1,13 @@
+project:
+  name: project-name
+services:
+  redis:
+    enabled: false
+  mongodb:
+    enabled: false
+  sqlite:
+    enabled: false
+  mariadb:
+    enabled: false
+  postgresql:
+    enabled: false
