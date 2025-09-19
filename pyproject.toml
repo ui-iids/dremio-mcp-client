@@ -1,7 +1,7 @@
 [project]
-name = "project_name"
+name = "dremio_mcp_client"
 version = "0.1"
-description = "project_description"
+description = "dremio_mcp_client created by ViaJables"
 dependencies = [
     "flask>=3.1.0",
     "flask-smorest>=0.45.0",
@@ -16,15 +16,15 @@ requires-python = ">=3.12,<4.0"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["project_name"]
+where = ["dremio_mcp_client"]
 include = []
 
 [tool.setuptools.package-data]
 "*" = ["*.css", "*.js", "*.ts", "*.html", "*.png", "*.svg", "*.jpg"]
 
 [project.urls]
-"Homepage" = "https://github.com/northwestknowledgenetwork/project_name"
-# "Documentation" = "https://northwestknowledgenetwork.github.io/project_name"
+"Homepage" = "https://github.com/northwestknowledgenetwork/dremio_mcp_client"
+# "Documentation" = "https://northwestknowledgenetwork.github.io/dremio_mcp_client"
 
 [[project.authors]]
 name = "Clinton Bradford"
@@ -60,14 +60,14 @@ serve = [
 ]
 
 [tool.coverage.run]
-source = ["project_name"]
-omit = ["/project_name/static/*", "/project_name/templates/*", "/tests/*"]
+source = ["dremio_mcp_client"]
+omit = ["/dremio_mcp_client/static/*", "/dremio_mcp_client/templates/*", "/tests/*"]
 
 [tool.coverage.report]
 fail_under = 80
 
 [tool.pytest.ini_options]
-addopts = "--cov=project_name --cov-report xml"
+addopts = "--cov=dremio_mcp_client --cov-report xml"
 
 [tool.tox]
 requires = ["tox-uv", "uv"]
@@ -94,7 +94,7 @@ commands = [["python", "scripts/build_sass.py"]]
 [tool.tox.env.type]
 description = "Analyze the code with mypy"
 dependency_groups = ["lint"]
-commands = [["mypy", "project_name"]]
+commands = [["mypy", "dremio_mcp_client"]]
 
 [tool.tox.env.3.13]
 dependency_groups = ["coverage","test", "dev","sass"]

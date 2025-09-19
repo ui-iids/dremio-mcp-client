@@ -4,7 +4,7 @@ import pytest
 from flask_smorest import abort
 from mock_alchemy.mocking import UnifiedAlchemyMagicMock
 
-from project_name.models import People
+from dremio_mcp_client.models import People
 
 
 class MockQuery:
@@ -50,7 +50,7 @@ def mock_db(monkeypatch):
 
         session = mock_session
 
-    monkeypatch.setattr("project_name.api.example.v1.blueprint.db", MockDB())
+    monkeypatch.setattr("dremio_mcp_client.api.example.v1.blueprint.db", MockDB())
 
 
 def test_get_user(client, mock_db):

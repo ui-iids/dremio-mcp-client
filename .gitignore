@@ -343,7 +343,7 @@ $RECYCLE.BIN/
 
 
 # Ignore development CSS map
-project_name/static/css/style.css.map
+dremio_mcp_client/static/css/style.css.map
 
 # Environment variable secrets intermediates and locals, for producing manifest/dev-env.yaml and and similar.
 .env.dev

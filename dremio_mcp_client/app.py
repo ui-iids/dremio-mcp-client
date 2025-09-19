@@ -39,7 +39,7 @@ def create_app(config_filename="config.toml", config_override={}):
         return render_template("pages/error.html"), 500
 
     # Accepts config from:
-    # * A file at `project_name/config.toml` or a name specified in `config_filename`
+    # * A file at `dremio_mcp_client/config.toml` or a name specified in `config_filename`
     # * A Python dictionary or dictionary-like passed as `config_override`
     # * argument, or a file specified by environment variable `APP_CONFIG_FILE`
     #
@@ -57,7 +57,7 @@ def create_app(config_filename="config.toml", config_override={}):
         app.wsgi_app = SassMiddleware(
             app.wsgi_app,
             {
-                "project_name": {
+                "dremio_mcp_client": {
                     "sass_path": "static/sass",
                     "css_path": "static/css",
                     "wsgi_path": "/static/css",
@@ -66,7 +66,7 @@ def create_app(config_filename="config.toml", config_override={}):
             },
         )
 
-    # Register the APIs paths from `project_name/api`.
+    # Register the APIs paths from `dremio_mcp_client/api`.
     # Remove if API is not needed.
     register_apis(app)
 

@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 from flask import Flask
 from sassutils.wsgi import SassMiddleware
 
-from project_name import create_app
+from dremio_mcp_client import create_app
 
 
 def test_create_app_handles_no_file():

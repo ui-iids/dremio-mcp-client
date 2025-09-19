@@ -1,5 +1,5 @@
 project:
-  name: project-name
+  name: dremio-mcp-client
 services:
   redis:
     enabled: false

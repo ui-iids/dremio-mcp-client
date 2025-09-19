@@ -1,5 +1,5 @@
 import json
-from project_name.app import create_app
+from dremio_mcp_client.app import create_app
 
 
 def test_pwa_manifest(client):

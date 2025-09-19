@@ -16,11 +16,11 @@ echo "Description: $description";
 
 echo "Renaming project..."
 
-original_author="author_name"
-original_name="project_name"
-original_dash_name="project-name"
-original_urlname="project_urlname"
-original_description="project_description"
+original_author="ViaJables"
+original_name="dremio_mcp_client"
+original_dash_name="dremio-mcp-client"
+original_urlname="dremio-mcp-client"
+original_description="dremio_mcp_client created by ViaJables"
 
 # Convert underscores to dashes, and upper to lowercase
 dash_name=$(echo $name | tr '[:upper:]' '[:lower:]' | tr '_' '-')
@@ -36,7 +36,7 @@ do
     echo "Renamed $filename"
 done
 
-mv project_name $underscore_name
+mv dremio_mcp_client $underscore_name
 mv -f project_templates/* .
 
 # This command runs only once on GHA!

@@ -5,7 +5,7 @@ import pytest
 from flask import Flask
 
 sys.path.append(str(Path(__file__).absolute().parent.parent))
-from project_name import create_app
+from dremio_mcp_client import create_app
 
 
 @pytest.fixture()

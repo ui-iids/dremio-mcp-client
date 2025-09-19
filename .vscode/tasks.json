@@ -4,7 +4,7 @@
     {
       "label": "dev-server",
       "type": "shell",
-      "command": "uv run flask --app project_name run --debug",
+      "command": "uv run flask --app dremio_mcp_client run --debug",
       "problemMatcher": {
         "owner": "python",
         "fileLocation": "absolute",

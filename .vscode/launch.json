@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "uv",
             "env": {
-                "FLASK_APP": "project_name",
+                "FLASK_APP": "dremio_mcp_client",
                 "FLASK_DEBUG": "1"
             },
             "args": [

@@ -6,7 +6,7 @@ from flask.views import MethodView
 from flask_smorest import Api, Blueprint, abort
 from marshmallow import Schema, fields
 
-from project_name.models import People, db
+from dremio_mcp_client.models import People, db
 
 api_title = "Example API"
 # By default, we set the api prefix and version number from the path.

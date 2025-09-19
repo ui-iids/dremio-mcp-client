@@ -39,7 +39,7 @@ ENV PYTHONUNBUFFERED=1
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 # Copy project files
-COPY project_name project_name
+COPY dremio_mcp_client dremio_mcp_client
 
 # Copy gunicorn configuration and project description
 COPY gunicorn.conf.py .
