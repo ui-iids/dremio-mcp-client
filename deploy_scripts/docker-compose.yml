@@ -27,7 +27,7 @@ services:
 
   # Sample Data - comment out if needed
   mysqlbill:
-    image: mysql:8
+    image: mysql:8.0
     environment:
       - MYSQL_DATABASE=billing
       - MYSQL_USER=billing
