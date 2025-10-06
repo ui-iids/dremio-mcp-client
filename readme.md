@@ -4,57 +4,6 @@
 
 ---
 
-## 🧰 Install
-
-This project uses **[`uv`](https://github.com/astral-sh/uv)** as its build system and package manager, but it is likely compatible with `pip`.
-
-### 1. Install `uv`
-You can install `uv` via your local package manager, the install script from its repository, or using `pip`.
-
-### 2. Sync dependencies
-Once `uv` is installed, run the following command in the project’s root directory:
-
-```bash
-uv sync
-```
-
----
-
-## ▶️ Run
-
-### Development Mode
-To run the project locally for development:
-
-```bash
-uv run flask --app dremio_mcp_client run --debug
-```
-
-### Standalone Server
-To run the project using **Gunicorn**:
-
-```bash
-gunicorn
-```
-
-### Docker Container
-To build and run the project in a container (after installing Docker):
-
-```bash
-docker build -t dremio_mcp_client -f Containerfile .
-docker run -d --name dremio_mcp_client -p 8005:8000 dremio_mcp_client
-python -m webbrowser http://localhost:8005
-```
-
-To remove the container and image when finished:
-
-```bash
-docker stop dremio_mcp_client
-docker container rm dremio_mcp_client
-docker image rm dremio_mcp_client
-```
-
----
-
 ## 🚀 Deploy
 
 In the `deploy_scripts` directory, there is a script called **`deploy_dremio.sh`**.
