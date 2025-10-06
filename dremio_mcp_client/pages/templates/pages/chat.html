@@ -1,20 +1,168 @@
 {% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+<link rel="stylesheet" href="/static/css/style.css" />
+
+{% endblock %}
+
 {% block content %}
-<div class="panel">
-    <div id="messages" class="messages"></div>
-    <form id="chat-form" class="chat">
-        <textarea id="q" name="q"
-            placeholder="Ask anything... e.g., “Join customers and invoices by email; total paid last 60 days by state; save as bakehouse.revenue_60d_by_state.”"></textarea>
-        <button id="send" type="submit">Send</button>
-    </form>
+
+<div class="app">
+    <!-- Sidebar: Views -->
+    <aside class="sidebar" aria-label="Views Sidebar">
+        <div class="sidebar-header">
+            <strong>Views</strong>
+            <span id="views-total" class="count">…</span>
+        </div>
+        <div class="sidebar-search">
+            <input id="views-search" type="search" placeholder="Search views…" aria-label="Search views">
+        </div>
+        <div id="sidebar-groups" class="sidebar-groups" aria-live="polite"></div>
+    </aside>
+
+    <!-- Right: Chat -->
+    <section class="chat-pane">
+        <div class="panel">
+            <div id="messages" class="messages"></div>
+            <form id="chat-form" class="chat">
+                <textarea id="q" name="q"
+                    placeholder="Ask anything... e.g., “Join customers and invoices by email; total paid last 60 days by state; save as bakehouse.revenue_60d_by_state.”"></textarea>
+                <button id="send" type="submit">Send</button>
+            </form>
+        </div>
+    </section>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+    // ---------- Sidebar (views) ----------
+    const $groupsWrap = document.getElementById('sidebar-groups');
+    const $viewsSearch = document.getElementById('views-search');
+    const $viewsTotal = document.getElementById('views-total');
+
+    let VIEWS = [];      // raw from /views
+    let FILTERED = [];   // filtered by search
+
+    function norm(str) { return (str || '').toLowerCase(); }
+
+    // group by first path segment (space/source/project)
+    function groupByProject(data) {
+        const groups = new Map();
+        for (const v of data) {
+            const parts = Array.isArray(v.path) ? v.path : (v.path_str ? v.path_str.split('.') : []);
+            const key = parts.length ? parts[0] : '(uncategorized)';
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(v);
+        }
+        // sort groups & each group’s items
+        return Array.from(groups.entries())
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([name, arr]) => {
+                arr.sort((x, y) => (x.path_str || '').localeCompare(y.path_str || ''));
+                return { name, items: arr };
+            });
+    }
+
+    function renderGroups(groups) {
+        $groupsWrap.innerHTML = '';
+        groups.forEach(g => {
+            const details = document.createElement('details');
+            details.className = 'group';
+            details.open = true;
+
+            const summary = document.createElement('summary');
+            summary.innerHTML = `
+        <span class="chev">▶</span>
+        <span>${g.name}</span>
+        <span class="count">${g.items.length}</span>
+      `;
+            details.appendChild(summary);
+
+            const list = document.createElement('div');
+            list.className = 'group-list';
+
+            g.items.forEach(v => {
+                const item = document.createElement('div');
+                item.className = 'view-item';
+                item.title = v.path_str || (Array.isArray(v.path) ? v.path.join('.') : '');
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+
+                const dot = document.createElement('span');
+                dot.className = 'view-dot';
+
+                const name = document.createElement('span');
+                name.className = 'view-name';
+                name.textContent = v.path_str || (Array.isArray(v.path) ? v.path.join('.') : '(unknown)');
+
+                item.appendChild(dot);
+                item.appendChild(name);
+
+                // On click, drop a helpful prompt into the chat box
+                item.addEventListener('click', () => insertViewPrompt(v));
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); insertViewPrompt(v); }
+                });
+
+                list.appendChild(item);
+            });
+
+            details.appendChild(list);
+            $groupsWrap.appendChild(details);
+        });
+
+        const total = groups.reduce((acc, g) => acc + g.items.length, 0);
+        $viewsTotal.textContent = total.toString();
+    }
+
+    function applySearch() {
+        const q = norm($viewsSearch.value);
+        if (!q) {
+            FILTERED = [...VIEWS];
+        } else {
+            FILTERED = VIEWS.filter(v => {
+                const s1 = norm(v.path_str);
+                const s2 = norm(Array.isArray(v.path) ? v.path.join('.') : '');
+                return s1.includes(q) || s2.includes(q);
+            });
+        }
+        renderGroups(groupByProject(FILTERED));
+    }
+
+    async function loadViews() {
+        try {
+            const res = await fetch('/views');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch /views');
+            VIEWS = data.data || [];
+            applySearch();
+        } catch (e) {
+            console.error(e);
+            VIEWS = [];
+            FILTERED = [];
+            renderGroups([]);
+        }
+    }
+
+    $viewsSearch.addEventListener('input', applySearch);
+    loadViews();
+
+    // Insert a helpful starter prompt that references the selected view
+    const $q = document.getElementById('q');
+    function insertViewPrompt(view) {
+        const name = view.path_str || (Array.isArray(view.path) ? view.path.join('.') : '');
+        const existing = $q.value.trim();
+        const prompt = `Preview first 100 rows from ${name}. Also show schema.`;
+        $q.value = existing ? `${existing}\n\n${prompt}` : prompt;
+        $q.focus();
+    }
+
+    // ---------- Existing chat logic ----------
     const $msgs = document.getElementById('messages');
     const $form = document.getElementById('chat-form');
-    const $q = document.getElementById('q');
     const $btn = document.getElementById('send');
 
     function addMsg(text, who) {

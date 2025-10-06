@@ -20,6 +20,26 @@ pages = Blueprint(
 _bridge = None
 _bridge_lock = threading.Lock()
 
+# pages.py (add near top)
+from ..dremio_api import DremioClient
+
+_dclient = None
+_dclient_lock = threading.Lock()
+
+
+def get_dremio_client() -> DremioClient:
+    global _dclient
+    if _dclient is None:
+        with _dclient_lock:
+            if _dclient is None:
+                base = os.getenv("DREMIO_URL")
+                token = os.getenv("DREMIO_TOKEN")
+                scheme = os.getenv("DREMIO_AUTH_SCHEME")  # optional
+                client = DremioClient(base_url=base, token=token, auth_scheme=scheme)
+                _dclient = client
+                current_app.logger.info("Dremio REST client initialized.")
+    return _dclient
+
 
 try:
     # If TextContent is importable:
@@ -124,3 +144,12 @@ def ask():
         return jsonify({"error": str(e)}), 500
 
 
+@pages.get("/views")
+def list_views_route():
+    try:
+        client = get_dremio_client()
+        views = client.list_views()
+        return jsonify({"data": views, "count": len(views)})
+    except Exception as e:
+        current_app.logger.exception("Failed to list views")
+        return jsonify({"error": str(e)}), 500
