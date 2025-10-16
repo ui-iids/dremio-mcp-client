@@ -4,157 +4,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>{{ title or "Lakehouse Chat" }}</title>
-    <style>
-        :root {
-            --bg: #0f172a;
-            --panel: #111827;
-            --muted: #94a3b8;
-            --fg: #e5e7eb;
-            --accent: #67e8f9;
-        }
+    <title>{{ title or "IIDS Data Explorer" }}</title>
+    <!-- highlight.js default theme (you can swap later) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/default.min.css">
 
-        * {
-            box-sizing: border-box;
-        }
+    <!-- Markdown-It + DOMPurify + highlight.js -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--fg);
-            font: 16px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        }
-
-        header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #1f2937;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        header .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-            display: inline-block;
-        }
-
-        header .ok {
-            background: #22c55e;
-        }
-
-        main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid #1f2937;
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        .messages {
-            height: 60vh;
-            overflow: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .msg {
-            padding: 12px 14px;
-            border-radius: 12px;
-            max-width: 85%;
-            white-space: pre-wrap;
-        }
-
-        .msg.user {
-            background: #1f2937;
-            align-self: flex-end;
-        }
-
-        .msg.bot {
-            background: #0b1220;
-            border: 1px solid #1f2937;
-        }
-
-        form.chat {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            border-top: 1px solid #1f2937;
-        }
-
-        textarea {
-            flex: 1;
-            resize: vertical;
-            min-height: 44px;
-            max-height: 180px;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #0b1220;
-            color: var(--fg);
-        }
-
-        button {
-            background: var(--accent);
-            color: #0b1220;
-            font-weight: 700;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 14px;
-            cursor: pointer;
-        }
-
-        button[disabled] {
-            opacity: 0.6;
-            cursor: progress;
-        }
-
-        .trace {
-            font-size: 13px;
-            color: var(--muted);
-            margin-top: 8px;
-        }
-
-        details {
-            background: #0b1220;
-            border: 1px dashed #334155;
-            border-radius: 8px;
-            padding: 8px 10px;
-        }
-
-        summary {
-            cursor: pointer;
-        }
-
-        .muted {
-            color: var(--muted);
-        }
-
-        .kbd {
-            padding: 2px 6px;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            background: #0b1220;
-            font-size: 12px;
-        }
-    </style>
     {% block head %}{% endblock %}
 </head>
 
 <body>
     <header>
         <div id="health-dot" class="dot"></div>
-        <strong>Lakehouse Chat</strong>
-        <span class="muted">/ Dremio MCP</span>
+        <strong>IIDS</strong>
+        <span class="muted">/ Data Explorer</span>
         <span style="margin-left:auto" class="muted">Press <span class="kbd">Shift</span>+<span class="kbd">Enter</span>
             for
             newline</span>

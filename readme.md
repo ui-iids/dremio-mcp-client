@@ -64,7 +64,6 @@ docker stop dremio_mcp_client
 docker container rm dremio_mcp_client
 docker image rm dremio_mcp_client
 ```
-
 ## Deploy
 
 4) Add the two sources in Dremio
@@ -98,6 +97,22 @@ GROUP BY 1,2,3
 ORDER BY lifetime_revenue_usd DESC;
 
 It can be saved as a view by clicking the PG_CRM datasource, running it, and saving it as a view. We recommend you create a space Spaces -> Add.
+
+
+## Notes on Dremio MCP
+In order to get the MCP server hooked up to both the dremio cluster and the flask app there are a couple of things to check.
+
+1. You have generated your token. It requires your username and password be in an environmental variable to work
+2. You have setup both a dremioai and a claude config in your mcp server (both required)
+3. Your path to the token file is setup. It expects a "@full_path" including the @ in the dremioai config file.
+```bash
+uv run dremio-mcp-server --help
+uv run dremio-mcp-server config create claude
+uv run dremio-mcp-server config list --type dremioai
+uv run dremio-mcp-server run
+```
+
+
 
 ## Updating
 

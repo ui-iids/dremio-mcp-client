@@ -1,7 +1,7 @@
 /* ----- Reset & Theme ----- */
 :root {
-  --bg: #0f172a;
-  --panel: #111827;
+  --bg: #1d1e1f;
+  --panel: #23272e;
   --muted: #94a3b8;
   --fg: #e5e7eb;
   --accent: #67e8f9;
@@ -122,6 +122,7 @@ main {
 .view-name {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:12px;
 }
 
 /* ----- Chat Panel ----- */

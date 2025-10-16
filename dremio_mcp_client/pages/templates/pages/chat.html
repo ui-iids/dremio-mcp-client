@@ -23,7 +23,8 @@
 
     <!-- Right: Chat -->
     <section class="chat-pane">
-        <div class="panel">
+        <div class="panel"
+            style="background: url(/static/images/noise.GcUVZ9sd.webp),radial-gradient(circle at right center,#4b29691c,#5632773c 25%,#49378c43,#4066a849 65%,#32517317);">
             <div id="messages" class="messages"></div>
             <form id="chat-form" class="chat">
                 <textarea id="q" name="q"
@@ -102,9 +103,9 @@
                 item.appendChild(name);
 
                 // On click, drop a helpful prompt into the chat box
-                item.addEventListener('click', () => insertViewPrompt(v));
+                item.addEventListener('click', () => previewView(v));
                 item.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); insertViewPrompt(v); }
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); previewView(v); }
                 });
 
                 list.appendChild(item);
@@ -165,14 +166,29 @@
     const $form = document.getElementById('chat-form');
     const $btn = document.getElementById('send');
 
-    function addMsg(text, who) {
+    function addMsg(text, who, opts = {}) {
         const div = document.createElement('div');
         div.className = 'msg ' + who;
-        div.textContent = text;
+
+        if (opts.markdown) {
+            div.innerHTML = renderMarkdownSafe(text);
+            // Enhance AFTER HTML is in the DOM
+            if (who === 'bot') {
+                // Let the DOM paint, then enhance (handles large answers)
+                queueMicrotask(() => enhanceSqlBlocks(div));
+            }
+        } else if (opts.html) {
+            div.innerHTML = text;
+        } else {
+            div.textContent = text;
+        }
+
         $msgs.appendChild(div);
         $msgs.scrollTop = $msgs.scrollHeight;
         return div;
     }
+
+
 
     function addTrace(trace) {
         if (!trace || !trace.length) return;
@@ -220,8 +236,11 @@
                 return;
             }
 
-            addMsg(data.answer || '(no answer)', 'bot');
+            // ... after you receive data from /ask:
+            const node = addMsg(data.answer || '(no answer)', 'bot', { markdown: true });
+            enhanceSqlBlocks(node);
             addTrace(data.trace);
+
         } catch (err) {
             thinking.remove();
             addMsg('Network error. Check server logs.', 'bot');
@@ -238,5 +257,222 @@
             $form.dispatchEvent(new Event('submit', { cancelable: true }));
         }
     });
+
+    function renderTable({ columns, rows }, title) {
+        const container = document.createElement('div');
+        container.className = 'msg bot';
+
+        const heading = document.createElement('div');
+        heading.style.fontWeight = '600';
+        heading.style.marginBottom = '6px';
+        heading.textContent = title || 'Preview';
+        container.appendChild(heading);
+
+        const table = document.createElement('table');
+        table.className = 'data-table';
+
+        // Header
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        (columns || []).forEach(c => {
+            const th = document.createElement('th');
+            th.textContent = c.name || '';
+            trh.appendChild(th);
+        });
+        thead.appendChild(trh);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement('tbody');
+        (rows || []).forEach(r => {
+            const tr = document.createElement('tr');
+            (columns || []).forEach(c => {
+                const td = document.createElement('td');
+                const v = r[c.name];
+                td.textContent = v === null || v === undefined ? '' : String(v);
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        container.appendChild(table);
+        $msgs.appendChild(container);
+        $msgs.scrollTop = $msgs.scrollHeight;
+    }
+
+    async function previewView(view) {
+        const name = view.path_str || (Array.isArray(view.path) ? view.path.join('.') : '(unknown)');
+        addMsg(`Previewing first 100 rows of ${name}…`, 'user');
+        const thinking = addMsg('Running query…', 'bot');
+
+        try {
+            const body = view.id
+                ? { id: view.id, limit: 100 }
+                : (Array.isArray(view.path) ? { path: view.path, limit: 100 } : { path_str: name, limit: 100 });
+
+            const res = await fetch('/views/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+            thinking.remove();
+
+            if (!res.ok) {
+                addMsg(`Error: ${data.error || 'Preview failed'}`, 'bot');
+                return;
+            }
+
+            renderTable({ columns: data.columns, rows: data.rows }, `${name} — preview (${data.rowCount} rows, showing up to 100)`);
+        } catch (err) {
+            thinking.remove();
+            addMsg('Network error during preview. Check server logs.', 'bot');
+        }
+    }
+
+    // --- Markdown renderer with syntax highlighting ---
+    const md = window.markdownit({
+        html: false,          // don't allow raw HTML from model
+        linkify: true,
+        typographer: true,
+        breaks: true,         // newline -> <br>
+        highlight: function (str, lang) {
+            try {
+                if (lang && window.hljs.getLanguage(lang)) {
+                    return window.hljs.highlight(str, { language: lang }).value;
+                }
+                return window.hljs.highlightAuto(str).value;
+            } catch (e) {
+                return ''; // no highlight
+            }
+        }
+    });
+
+    // Safe sanitizer for the rendered HTML
+    function renderMarkdownSafe(markdownText) {
+        const dirty = md.render(markdownText || '');
+        // open links in new tabs, add rel for security
+        const clean = DOMPurify.sanitize(dirty, {
+            ADD_ATTR: ['target', 'rel'],
+            FORBID_TAGS: ['style', 'iframe', 'script'],
+            FORBID_ATTR: ['style', 'on*'],
+        });
+        // post-process links
+        const tmp = document.createElement('div');
+        tmp.innerHTML = clean;
+        tmp.querySelectorAll('a[href]').forEach(a => {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener noreferrer');
+        });
+        return tmp.innerHTML;
+    }
+
+    function enhanceSqlBlocks(container) {
+        // Find all fenced code blocks rendered by markdown-it that are SQL.
+        const blocks = container.querySelectorAll('pre > code.language-sql, pre > code.lang-sql, pre > code[class*="language-sql"]');
+
+        blocks.forEach(codeEl => {
+            // Avoid double-injecting
+            if (codeEl.dataset.sqlEnhanced === '1') return;
+            codeEl.dataset.sqlEnhanced = '1';
+
+            // Normalize text: use the DOM textContent (already unescaped)
+            const sqlText = codeEl.textContent.trim();
+
+            // Toolbar container
+            const bar = document.createElement('div');
+            bar.className = 'sql-actions';
+
+            const runBtn = document.createElement('button');
+            runBtn.type = 'button';
+            runBtn.textContent = 'Run SQL';
+
+            const viewBtn = document.createElement('button');
+            viewBtn.type = 'button';
+            viewBtn.textContent = 'Save as View';
+
+            const status = document.createElement('span');
+            status.className = 'status';
+
+            bar.appendChild(runBtn);
+            bar.appendChild(viewBtn);
+            bar.appendChild(status);
+
+            // Insert toolbar just after the <pre>
+            const pre = codeEl.closest('pre');
+            pre.insertAdjacentElement('afterend', bar);
+
+            // --- Handlers ---
+            runBtn.addEventListener('click', async () => {
+                runBtn.disabled = true; viewBtn.disabled = true;
+                status.textContent = 'Running…';
+                console.log(sqlText);
+                try {
+                    const res = await fetch('/sql/run', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sql: sqlText, limit: 200 })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Run failed');
+                    // Reuse your existing renderer
+                    renderTable({ columns: data.columns, rows: data.rows }, `SQL preview — ${data.rowCount ?? (data.rows?.length || 0)} rows (showing up to 200)`);
+                    status.textContent = 'Done';
+                } catch (e) {
+                    addMsg(`Error running SQL: ${e.message}`, 'bot');
+                    status.textContent = 'Error';
+                } finally {
+                    runBtn.disabled = false; viewBtn.disabled = false;
+                    setTimeout(() => status.textContent = '', 1500);
+                }
+            });
+
+            viewBtn.addEventListener('click', async () => {
+                // Basic prompt; replace with a modal if you have one
+                const defaultName = guessViewNameFromSQL(sqlText) || 'new_space.new_view_name';
+                const pathStr = prompt('Enter view path (e.g., space.project.view_name):', defaultName);
+                if (!pathStr) return;
+                runBtn.disabled = true; viewBtn.disabled = true;
+                status.textContent = 'Saving…';
+                try {
+                    const res = await fetch('/views/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path_str: pathStr, sql: sqlText })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Create failed');
+                    status.textContent = 'Saved';
+                    // Optional: refresh sidebar so the new view appears
+                    loadViews();
+                    addMsg(`✅ View **${pathStr}** created.`, 'bot', { markdown: true });
+                } catch (e) {
+                    addMsg(`Error creating view: ${e.message}`, 'bot');
+                    status.textContent = 'Error';
+                } finally {
+                    runBtn.disabled = false; viewBtn.disabled = false;
+                    setTimeout(() => status.textContent = '', 1500);
+                }
+            });
+        });
+    }
+
+    // Heuristic for default view name (optional)
+    function guessViewNameFromSQL(sql) {
+        // Prefer explicit "create view x as" names if present
+        const m = sql.match(/create\s+(?:or\s+replace\s+)?view\s+([a-z0-9_."]+)\s+as/i);
+        if (m) return m[1].replaceAll('"', '');
+        // Or derive from first table mentioned
+        const f = sql.match(/from\s+([a-z0-9_."]+)/i);
+        if (f) {
+            const base = f[1].replaceAll('"', '').split('.').slice(0, 2).join('.') || 'space.project';
+            return `${base}.view_${Date.now()}`;
+        }
+        return null;
+    }
+
+
+
 </script>
 {% endblock %}

@@ -20,7 +20,7 @@ export DREMIO_USER="admin"
 export DREMIO_PASSWORD="dremioadmin1"
 chmod +x ./generate_dremio_token.sh
 ./generate_dremio_token.sh
-export DREMIO_TOKEN="$(cat .dremio_token)"
+export DREMIO_TOKEN="$(cat token.txt)"
 cp token.txt ../dremio-mcp/token.txt
 
 
@@ -62,5 +62,4 @@ umask 177
 } > "$ENV_FILE"
 
 printf "RUN FLASK IN THE dremio-mcp-client directory via: uv run flask --app dremio_mcp_client run --debug"
-
 

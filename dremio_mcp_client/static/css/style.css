@@ -1,11 +1,12 @@
 /* ----- Reset & Theme ----- */
 :root {
-  --bg: #0f172a;
-  --panel: #111827;
+  --bg: #101010;
+  --panel: #141414;
   --muted: #94a3b8;
   --fg: #e5e7eb;
-  --accent: #67e8f9;
+  --accent: radial-gradient(141.42% 141.42% at 100% 0%,#ffffff80,#fff0),radial-gradient(140.35% 140.35% at 100% 94.74%,#bd34fe,#bd34fe00),radial-gradient(89.94% 89.94% at 18.42% 15.79%,#41d1ff,#41d1ff00);
 }
+
 
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
@@ -27,7 +28,7 @@ header .dot {
   width: 10px; height: 10px; border-radius: 50%;
   background: #ef4444; display: inline-block;
 }
-header .ok { background: #22c55e; }
+header .ok { background: radial-gradient(141.42% 141.42% at 100% 0%,#ffffff80,#fff0),radial-gradient(140.35% 140.35% at 100% 94.74%,#bd34fe,#bd34fe00),radial-gradient(89.94% 89.94% at 18.42% 15.79%,#41d1ff,#41d1ff00); }
 .muted { color: var(--muted); }
 .kbd {
   padding: 2px 6px; border: 1px solid #334155; border-radius: 6px;
@@ -80,12 +81,12 @@ main {
 .sidebar-header strong { font-weight: 700; }
 
 .sidebar-search {
-  padding: 10px 12px; border-bottom: 1px solid #1f2937;
+  padding: 10px 12px; border-bottom: 1px solid #0f172a;
 }
 .sidebar-search input[type="search"] {
   width: 100%; padding: 8px 10px;
   border-radius: 10px; border: 1px solid #334155;
-  background: #0b1220; color: var(--fg);
+  background: #101010; color: var(--fg);
 }
 
 .sidebar-groups {
@@ -97,7 +98,7 @@ main {
 /* Groups / items */
 .group {
   border: 1px solid #1f2937; border-radius: 10px;
-  margin: 8px 4px; background: #0b1220;
+  margin: 8px 4px; background: #101010;
 }
 .group summary {
   list-style: none; cursor: pointer;
@@ -117,11 +118,13 @@ main {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; border-top: 1px solid #0f172a; cursor: pointer;
 }
-.view-item:hover { background: #0b1326; }
+.view-item:hover { background: #101010; }
 .view-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: 0 0 auto; }
 .view-name {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  font-weight: 400;
 }
 
 /* ----- Chat Panel ----- */
@@ -157,7 +160,7 @@ main {
   white-space: pre-wrap;
 }
 .msg.user { background: #1f2937; align-self: flex-end; }
-.msg.bot  { background: #0b1220; border: 1px solid #1f2937; }
+.msg.bot  { background: #101010; border: 1px solid #1f2937; }
 
 form.chat {
   display: flex; gap: 10px; padding: 12px;
@@ -166,17 +169,17 @@ form.chat {
 textarea {
   flex: 1; resize: vertical; min-height: 44px; max-height: 180px;
   padding: 10px; border-radius: 10px;
-  border: 1px solid #334155; background: #0b1220; color: var(--fg);
+  border: 1px solid #334155; background: #101010; color: var(--fg);
 }
 button {
-  background: var(--accent); color: #0b1220; font-weight: 700;
+  background: var(--accent); color: #101010; font-weight: 700;
   border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer;
 }
 button[disabled] { opacity: 0.6; cursor: progress; }
 
 .trace { font-size: 13px; color: var(--muted); margin-top: 8px; }
 details {
-  background: #0b1220; border: 1px dashed #334155; border-radius: 8px; padding: 8px 10px;
+  background: #101010; border: 1px dashed #334155; border-radius: 8px; padding: 8px 10px;
 }
 summary { cursor: pointer; }
 
@@ -184,10 +187,33 @@ summary { cursor: pointer; }
 .table-wrap { overflow: auto; max-height: 40vh; }
 table.views { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.views th, table.views td { padding: 10px 12px; border-bottom: 1px solid #1f2937; text-align: left; white-space: nowrap; }
-table.views th { position: sticky; top: 0; background: #0b1220; cursor: pointer; }
+table.views th { position: sticky; top: 0; background: #101010; cursor: pointer; }
 th .sort { font-size: 11px; color: var(--muted); margin-left: 6px; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 .badge {
   display: inline-block; font-size: 11px; border: 1px solid #334155;
   border-radius: 999px; padding: 2px 8px; color: var(--muted);
 }
+
+
+  .messages .msg.bot { line-height: 1.5; }
+  .messages .msg.bot h1, .messages .msg.bot h2, .messages .msg.bot h3 { margin: 0.6em 0 0.4em; }
+  .messages .msg.bot p { margin: 0.5em 0; }
+  .messages .msg.bot ul, .messages .msg.bot ol { padding-left: 1.4em; margin: 0.5em 0; }
+  .messages .msg.bot pre { overflow: auto; padding: 10px; border-radius: 6px; }
+  .messages .msg.bot code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .messages .msg.bot table { border-collapse: collapse; width: 100%; margin: 0.5em 0; }
+  .messages .msg.bot th, .messages .msg.bot td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; }
+  .messages .msg.bot blockquote { border-left: 4px solid #e5e7eb; margin: 0.5em 0; padding: 4px 8px; color: #374151; background: #fafafa; }
+  .messages .msg.bot a { color: #2563eb; text-decoration: underline; }
+
+    .sql-actions {
+    display: flex; gap: 8px; margin: 6px 0 10px;
+  }
+  .sql-actions button {
+    padding: 6px 10px; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer;
+    background: #fff;
+  }
+  .sql-actions button:hover { background: #f3f4f6; }
+  .sql-actions .status { margin-left: auto; font-size: 12px; color: #6b7280; align-self: center; }
+  pre code[data-lang="sql"] { position: relative; }
